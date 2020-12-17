@@ -1,46 +1,47 @@
 ;---------------------------------------------------------------------
-; Gorka Mateusz - 
+; Wypelnianie, odwracanie tabclie w IRAM i XRAM
+; by Gorka Mateusz
 ;---------------------------------------------------------------------
 ORG 0
 
 test_reverse_iram:
-        mov     R0, #30h        ; adres poczatkowy tablicy
+        mov     R0, #30h        ; address poczatkowy tablicy
         mov     R2, #8          ; dlugosc tablicy
         lcall   fill_iram
 
-        mov     R0, #30h        ; adres poczatkowy tablicy
+        mov     R0, #30h        ; address poczatkowy tablicy
         mov     R2, #8          ; dlugosc tablicy
         lcall   reverse_iram
 
 test_reverse_xram:
-        mov     DPTR, #8000h    ; adres poczatkowy tablicy
+        mov     DPTR, #8000h    ; address poczatkowy tablicy
         mov     R2, #81h        ; dlugosc tablicy R3|R2
         mov     R3, #1h
         lcall   fill_xram
 
-        mov     DPTR, #8000h    ; adres poczatkowy tablicy
+        mov     DPTR, #8000h    ; address poczatkowy tablicy
         mov     R2, #81h        ; dlugosc tablicy R3|R2
         mov     R3, #1h
         lcall   reverse_xram
 
 test_string:
-        mov     DPTR, #text     ; adres poczatkowy stringu (CODE)
-        mov     R0, #30h        ; adres poczatkowy stringu (IRAM)
+        mov     DPTR, #text     ; address poczatkowy stringu (CODE)
+        mov     R0, #30h        ; address poczatkowy stringu (IRAM)
         lcall   copy_string
 
-        mov     DPTR, #text     ; adres poczatkowy stringu (CODE)
-        mov     R0, #30h        ; adres poczatkowy stringu (IRAM)
+        mov     DPTR, #text     ; address poczatkowy stringu (CODE)
+        mov     R0, #30h        ; address poczatkowy stringu (IRAM)
         lcall   reverse_string
 
-        mov     DPTR, #text     ; adres poczatkowy stringu (CODE)
-        mov     R0, #30h        ; adres poczatkowy stringu (IRAM)
+        mov     DPTR, #text     ; address poczatkowy stringu (CODE)
+        mov     R0, #30h        ; address poczatkowy stringu (IRAM)
         lcall   count_letters
 
         sjmp    $
 
 ;---------------------------------------------------------------------
 ; Wypelnianie tablicy ciagiem liczbowym 1,2,3, ... (IRAM)
-; Wejscie:  R0 - adres poczatkowy tablicy
+; Input:  R0 - address poczatkowy tablicy
 ;           R2 - dlugosc tablicy
 ;---------------------------------------------------------------------
 fill_iram:
@@ -55,7 +56,7 @@ fill_iram_loop:
 
 ;---------------------------------------------------------------------
 ; Wypelnianie tablicy ciagiem liczbowym 1,2,3, ... (XRAM)
-; Wejscie:  DPTR  - adres poczatkowy tablicy
+; Input:  DPTR  - address poczatkowy tablicy
 ;           R3|R2 - dlugosc tablicy
 ;---------------------------------------------------------------------
 fill_xram:
@@ -78,14 +79,14 @@ fx_no:  dec     R2
 
 ;---------------------------------------------------------------------
 ; Odwracanie tablicy w pamieci wewnetrznej (IRAM)
-; Wejscie:  R0 - adres poczatkowy tablicy
+; Input:  R0 - address poczatkowy tablicy
 ;           R2 - dlugosc tablicy
 ;---------------------------------------------------------------------
 reverse_iram:
-        mov     A,      R0              ; Wyliczenie adresu konca
+        mov     A,      R0              ; Wyliczenie addressu konca
         add     A,      R2              ;;
         dec     A                       ;;
-        mov     R1,     A               ;; R1 - adres konca tablicy
+        mov     R1,     A               ;; R1 - address konca tablicy
         
         mov     A,      R2              ; Wyliczenie polowy dlugosci tablicy
         clr     C                       ;;
@@ -105,7 +106,7 @@ reverse_iram_loop:
 
 ;---------------------------------------------------------------------
 ; Odwracanie tablicy w pamieci zewnetrznej (XRAM)
-; Wejscie:  DPTR  - adres poczatkowy tablicy
+; Input:  DPTR  - address poczatkowy tablicy
 ;           R3|R2 - dlugosc tablicy
 ;---------------------------------------------------------------------
 reverse_xram:
@@ -163,8 +164,8 @@ rx_no3: dec     R2                      ;;
 
 ;---------------------------------------------------------------------
 ; Kopiowanie stringu z pamieci programu (CODE) do pamieci IRAM
-; Wejscie:  DPTR - adres poczatkowy stringu (CODE)
-;           R0   - adres poczatkowy stringu (IRAM)
+; Input:  DPTR - address poczatkowy stringu (CODE)
+;           R0   - address poczatkowy stringu (IRAM)
 ;---------------------------------------------------------------------
 copy_string:
         
@@ -181,7 +182,7 @@ cs_loop:
 
 ;---------------------------------------------------------------------
 ; Odwracanie stringu w pamieci IRAM
-; Wejscie:  R0 - adres poczatkowy stringu
+; Input:  R0 - address poczatkowy stringu
 ;---------------------------------------------------------------------
 reverse_string:
         mov     R2,     #0              ; licznik znaku
@@ -202,8 +203,8 @@ count_txt_loop:
 
 ;---------------------------------------------------------------------
 ; Zliczanie liter w stringu umieszczonym w pamieci IRAM
-; Wejscie:  R0 - adres poczatkowy stringu
-; Wyjscie:  A  - liczba liter w stringu
+; Input:  R0 - address poczatkowy stringu
+; Output:  A  - liczba liter w stringu
 ;---------------------------------------------------------------------
 count_letters:
         clr     A                       ; licznik liter

@@ -1,5 +1,6 @@
 ;---------------------------------------------------------------------
-; By Gorka Mateusz
+; Obsluga klawiatury
+; by Gorka Mateusz
 ;---------------------------------------------------------------------
 P5              EQU     0F8h            ; adres P5 w obszarze SFR
 P7              EQU     0DBh            ; adres P7 w obszarze SFR
@@ -14,7 +15,7 @@ ORG 0
         mov     SP,     #31h            ; ustawienie adresu stosu
         mov     LEDS,   #0ffh
 
-main_loop:      
+main_loop:
         lcall   kbd_read
         lcall   kbd_display
         sjmp    main_loop
@@ -27,12 +28,12 @@ main_loop:
 kbd_select_row:
         orl     ROWS,   #11110000b
         cjne    A,      #4,     equalR  ; jesli A < 4
-equalR: jc      set_row                 ;;
+equalR: jc      set_row                 ; ...
         ret
 set_row:
         mov     DPTR,   #KEY_CODE       ; konwertuje wartosc na kod
-        movc    A,      @A+DPTR         ;;
-        anl     ROWS,   A               ;;
+        movc    A,      @A+DPTR         ; ...
+        anl     ROWS,   A               ; ...
         ret
 
 ;---------------------------------------------------------------------
@@ -47,8 +48,8 @@ kbd_read_row:
         
         mov     A,      COLS            ; sprawdza czy ktory kolwiek klawisz
         orl     A,      #11110000b      ; jest wcisniety
-        cpl     A                       ;;
-        jz      row_not_found           ;;
+        cpl     A                       ; ...
+        jz      row_not_found           ; ...
 
         mov     R1,     #0              ; licznik klawisza (w kolumnie)
         mov     A,      #00001000b      ; maska odczytu
@@ -59,9 +60,9 @@ read_row_loop:
         jz      row_found               ; jesli znaleziono
         pop     ACC
         rr      A                       ; przesun maske
-        anl     A,      #00001111b      ;;
+        anl     A,      #00001111b      ; ...
         inc     R1                      ; sprawdz nastepny klawisz
-        jnz     read_row_loop           ;;
+        jnz     read_row_loop           ; ...
 row_not_found:
         clr     C
         ret 
@@ -83,12 +84,12 @@ kbd_read:
 
 read_loop:
         mov     A,      R0              ; sprawdza wiersz
-        lcall   kbd_read_row            ;;
+        lcall   kbd_read_row            ; ...
         jc      read_found              ; jesli znaleziono
 
         inc     R0                      ; nastepny wiersz
         cjne    R0,     #4,     equal   ; jesli R0<4
-equal:  jc      read_loop               ;;
+equal:  jc      read_loop               ; ...
         
         clr     C
         jmp     read_end
@@ -96,8 +97,8 @@ equal:  jc      read_loop               ;;
 read_found:
         mov     R1,     A               ; nr kolumny
         mov     A,      R0              ; nr wiersza x 4
-        rl      A                       ;; 
-        rl      A                       ;;
+        rl      A                       ; ...
+        rl      A                       ; ...
         add     A,      R1              ; rows x 4 + cols
         setb    C                       
         

@@ -1,7 +1,6 @@
-;--------------------------
-; Gorka Mateusz, 
-;--------------------------
-
+;-----------------------------------------------------------------
+; Kilka sposobow na realizacje opoznien w 8051
+; by Gorka Mateusz
 ;-----------------------------------------------------------------
 LEDS    EQU     P1                      ; diody LED na P1 (0=ON)
 ;-----------------------------------------------------------------
@@ -23,8 +22,8 @@ ORG 0
 
 leds_loop:
         mov     a,      LEDS            ; przesuniecie diody
-        rl      a                       ;;
-        mov     LEDS,   a               ;;
+        rl      a                       ; ...
+        mov     LEDS,   a               ; ...
         lcall   delay_timer_50ms        ; Opoznienie o 50ms
         lcall   update_time             ; Aktualizacja czasu
 
@@ -33,17 +32,23 @@ leds_loop:
 
 ;---------------------------------------------------------------------
 ; Inicjalizuje timer0
+; TMOD:
+;       GATE    - 0
+;       C/T     - 0     - timer
+;       M1      - 0     }
+;       M0      - 1     } - tryb 16-bitowy
 ;---------------------------------------------------------------------
 init_clock:
         anl     TMOD,   #0f0h           ; Konfiguracja Timer0: #0001b (czyscimy)
-        orl     TMOD,   #001h           ;; (nadpisujemy)
-        
-        mov     CNT_50, #20             ; Licznik dla procedury update_time     
+        orl     TMOD,   #001h           ; ... (nadpisujemy)
+
+        mov     CNT_50, #20             ; Licznik dla procedury update_time
         mov     SEC,    #55             ; Wartosci poczatkowe dla liczenia
         mov     MIN,    #58
         mov     HOUR,   #23
-        
+
         ret
+
 
 ;---------------------------------------------------------------------
 ; Opoznienie 50 ms (zegar 12 MHz)
@@ -57,7 +62,7 @@ _50ms_loop:
         djnz    R2,     $               ; 2 x 100 x 248 = 49 600
         djnz    R1,     _50ms_loop      ; 2 x 100       =    200
         ret                             ;              + ______2______
-                                        ;                 50 003 cykli                          
+                                        ;                 50 003 cykli
 
 
 ;---------------------------------------------------------------------
@@ -65,25 +70,19 @@ _50ms_loop:
 ; R7 - n, czas x 50 ms
 ;---------------------------------------------------------------------
 delay_nx50ms:
-        mov     R6,     #100                    ; 1 x N         =      1N
+        mov     R6,     #100             ; 1 x N         =      1N
 n_50ms_loop:
-        mov     R5,     #248                    ; 1 x N x 100   =    100N
-        nop                                     ; 1 x N x 100   =    100N
-        djnz    R5,     $                       ; 2 x N x 100x248=49 600N
-        djnz    R6,     n_50ms_loop             ; 2 x N x 100   =    200N
-        djnz    R7,     delay_nx50ms            ; 2 x N         =      2N
-        ret                                     ; 2           + ____________
-                                                ;                 50 003N + 2
+        mov     R5,     #248             ; 1 x N x 100   =    100N
+        nop                              ; 1 x N x 100   =    100N
+        djnz    R5,     $                ; 2 x N x 100x248=49 600N
+        djnz    R6,     n_50ms_loop      ; 2 x N x 100   =    200N
+        djnz    R7,     delay_nx50ms     ; 2 x N         =      2N
+        ret                              ; 2           + _______2_____
+                                         ;                 50 003N + 2
 
 
 ;---------------------------------------------------------------------
 ; Opoznienie 50 ms z uzyciem Timera 0 (zegar 12 MHz)
-;---------------------------------------------------------------------
-; TMOD:
-;       GATE    - 0
-;       C/T     - 0     - timer
-;       M1      - 0     }
-;       M0      - 1     } - tryb 16-bitowy
 delay_timer_50ms:
         mov     TL0,    #low(load)
         mov     TH0,    #high(load)
@@ -91,7 +90,7 @@ delay_timer_50ms:
         jnb     TF0,    $
         clr     TR0
         clr     TF0
-        
+
         ret
 
 
@@ -109,10 +108,10 @@ delay_timer_50ms:
 ;---------------------------------------------------------------------
 update_time:
         djnz    CNT_50, no_change               ; licznik (co 20)
-        mov     CNT_50, #20                      
+        mov     CNT_50, #20
         inc     SEC                             ; Aktualizacja sekund
         mov     A,      SEC
-        cjne    A,      #60,    no_change       
+        cjne    A,      #60,    no_change
         mov     SEC,    #0                      ; Aktualizacja minut
         inc     MIN
         mov     A,      MIN
@@ -124,6 +123,5 @@ update_time:
         mov     HOUR,   #0                      ; Koniec doby
 no_change:
         ret
-
 
 END
